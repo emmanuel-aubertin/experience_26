@@ -6,7 +6,14 @@
 #include <string.h>
 #include <array>
 #include <random>
+#include <string>
+#include <sstream>
+#include <nlohmann/json.hpp>
+#include <vector>
 
+#include "Player/Player.hpp"
+
+using json = nlohmann::json;
 const int BOARD_SIZE = 10;
 
 std::array<std::array<char, BOARD_SIZE>, BOARD_SIZE> init_game_board()
@@ -52,11 +59,12 @@ void print_board(const std::array<std::array<char, BOARD_SIZE>, BOARD_SIZE> &boa
     }
 }
 
+
 int main()
 {
     int port = 8000;
 
-    std::vector<std::string> players_registred;
+    std::vector<Player> players_registred;
 
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0)
@@ -91,6 +99,15 @@ int main()
         if (bytesReceived > 0)
         {
             std::cout << "Received message from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << ": " << std::string(buffer, bytesReceived) << std::endl;
+            json json_message = json::parse(std::string(buffer, bytesReceived));
+            if (json_message.contains("action") && json_message["action"] == "register")
+            {
+                std::cout << "Registering new player " << std::endl;
+                if (json_message.contains("nickname")){
+                    players_registred.push_back(Player(json_message["nickname"].get<std::string>(), inet_ntoa(clientAddr.sin_addr), json_message["port"].get<int>()));
+                }
+                std::cout << "Registered new player: " << json_message["nickname"].get<std::string>() << " from " << inet_ntoa(clientAddr.sin_addr)<<":"<< json_message["port"].get<int>() << std::endl;
+            }
         }
     }
 

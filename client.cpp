@@ -17,13 +17,19 @@ int main()
         return 1;
     }
 
+    std::string playerName;
+    std::cout << "Nickename: ";
+    std::cin >> playerName;
+    std::cout << std::endl;
+
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = inet_addr(SERVER_ADDR);
     serverAddr.sin_port = htons(SERVER_PORT);
 
-    const char *message = "Hello world!";
-    sendto(sockfd, message, strlen(message), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
+    std::string message = "{\"action\": \"register\", \"nickname\": \"" + playerName + "\", \"port\": 9090}";
+    std::cout << message << std::endl;
+    sendto(sockfd, message.c_str(), strlen(message.c_str()), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 
     close(sockfd);
     return 0;
