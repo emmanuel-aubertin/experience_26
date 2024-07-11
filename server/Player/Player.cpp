@@ -16,6 +16,7 @@ Player::Player(const std::string &name, const std::string &ipAdresse, const int 
 
 std::string Player::getName() { return name; }
 
+
 void Player::sendMessage(const std::string &message)
 {
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
