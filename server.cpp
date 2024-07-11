@@ -54,7 +54,8 @@ int main() {
         std::cerr << "Error binding socket" << std::endl;
         return 1;
     }
-    print_board();
+    
+    print_board(board);
 
     std::cout << "UDP server listening on port " << port << std::endl;
 
