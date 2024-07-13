@@ -62,6 +62,13 @@ int main() {
                 } else {
                     std::cerr << "Unable to parse player info! " << std::endl;
                 }
+                continue;
+            }
+            if (json_message.contains("action") && json_message["action"] == "input") 
+            {
+                if (! json_message.contains("nickname")) continue;
+                // TODO: make handle play in board class
+
             }
         }
     }
