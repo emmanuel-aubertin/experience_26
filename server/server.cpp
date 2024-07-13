@@ -4,12 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <array>
-#include <string>
-#include <sstream>
 #include <nlohmann/json.hpp>
-#include <vector>
-
 #include "Player/Player.hpp"
 #include "Board/Board.hpp"
 
@@ -19,7 +14,7 @@ const int BOARD_SIZE = 10;
 int main() {
     int port = 8000;
 
-    Board board;
+    Board board(BOARD_SIZE); // Initialize the board with a specific size
 
     board.printBoard();
 
@@ -49,26 +44,35 @@ int main() {
         if (bytesReceived > 0) {
             std::cout << "Received message from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << ": " << std::string(buffer, bytesReceived) << std::endl;
             json json_message = json::parse(std::string(buffer, bytesReceived));
-            if (json_message.contains("action") && json_message["action"] == "register") {
-                std::cout << "Registering new player " << std::endl;
-                if (json_message.contains("nickname")) {
-                    Player *tempPlayer = new Player(json_message["nickname"].get<std::string>(), inet_ntoa(clientAddr.sin_addr), json_message["port"].get<int>());
-                    if (!board.addPlayer(*tempPlayer)) {
-                        tempPlayer->sendMessage("Nickname already taken !");
-                        delete tempPlayer;
-                        continue;
+            
+            if (json_message.contains("action")) {
+                std::string action = json_message["action"];
+                
+                if (action == "register") {
+                    std::cout << "Registering new player" << std::endl;
+                    if (json_message.contains("nickname")) {
+                        Player tempPlayer(json_message["nickname"].get<std::string>(), inet_ntoa(clientAddr.sin_addr), json_message["port"].get<int>());
+                        if (!board.addPlayer(tempPlayer)) {
+                            // Send a message back to the client indicating the nickname is already taken
+                            std::string response = "{\"action\": \"error\", \"message\": \"Nickname already taken!\"}";
+                            sendto(sockfd, response.c_str(), response.size(), 0, (sockaddr *)&clientAddr, clientAddrSize);
+                            continue;
+                        }
+                        std::cout << "Registered player: " << tempPlayer.getName() << std::endl;
+                    } else {
+                        std::cerr << "Unable to parse player info!" << std::endl;
                     }
-                    std::cout << "Registered player: " << tempPlayer->getName() << std::endl;
-                } else {
-                    std::cerr << "Unable to parse player info! " << std::endl;
-                }
-                continue;
-            }
-            if (json_message.contains("action") && json_message["action"] == "input") 
-            {
-                if (! json_message.contains("nickname")) continue;
-                // TODO: make handle play in board class
+                } else if (action == "input") {
+                    if (json_message.contains("nickname") && json_message.contains("value")) {
+                        std::string nickname = json_message["nickname"];
+                        char value = json_message["value"].get<std::string>()[0];
 
+                        int result = board.play(nickname, value);
+                        std::string response;
+                        
+                        sendto(sockfd, response.c_str(), response.size(), 0, (sockaddr *)&clientAddr, clientAddrSize);
+                    }
+                }
             }
         }
     }

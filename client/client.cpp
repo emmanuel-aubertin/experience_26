@@ -32,41 +32,16 @@ int main()
     std::cout << "Sending message: " << message << std::endl;
     sendto(sockfd_send, message.c_str(), message.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 
-    close(sockfd_send);
-
-    // Create a socket for receiving messages
-    int sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd_recv < 0)
-    {
-        std::cerr << "Error creating socket" << std::endl;
-        return 1;
-    }
-
-    sockaddr_in clientAddr;
-    clientAddr.sin_family = AF_INET;
-    clientAddr.sin_addr.s_addr = INADDR_ANY;
-    clientAddr.sin_port = htons(port);
-
-    if (bind(sockfd_recv, (sockaddr *)&clientAddr, sizeof(clientAddr)) < 0)
-    {
-        std::cerr << "Error binding socket" << std::endl;
-        return 1;
-    }
-
-    std::cout << "UDP client listening on port " << port << std::endl;
-
-    char buffer[1024];
-    sockaddr_in serverResponseAddr;
-    socklen_t serverResponseAddrSize = sizeof(serverResponseAddr);
     while (true)
     {
-        int bytesReceived = recvfrom(sockfd_recv, buffer, sizeof(buffer), 0, (sockaddr *)&serverResponseAddr, &serverResponseAddrSize);
-        if (bytesReceived > 0)
-        {
-            std::cout << "Received message from server: " << std::string(buffer, bytesReceived) << std::endl;
-        }
+
+        std::string input;
+        std::cin >> input;
+
+        std::string inputMessage = "{\"action\": \"input\", \"nickname\": \"" + playerName + "\", \"value\": \"" + input + "\"}";
+        sendto(sockfd_send, inputMessage.c_str(), inputMessage.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
     }
 
-    close(sockfd_recv);
+    close(sockfd_send);
     return 0;
 }

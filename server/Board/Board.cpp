@@ -76,7 +76,6 @@ int Board::play(const std::string &nickname, const char &input)
         return 0;
     }
 
-    // Check each possible direction for a valid move
     if (x > 0 && this->gameBoard[x-1][y] == input) {
         setCoordinates(nickname, std::make_tuple(x-1, y));
         return 1;
