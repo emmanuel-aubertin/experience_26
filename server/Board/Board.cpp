@@ -100,12 +100,23 @@ int Board::play(const std::string &nickname, const char &input)
     return 0;
 }
 
+Player* Board::getWinner() {
+    if(this->isFinnish){
+        return this->winner;
+    }
+    return nullptr;
+}
+
 
 void Board::setCoordinates(const std::string &nickname, const std::tuple<int, int> &coords) 
 {
     for (auto &player : playersCoordinates) {
         if (std::get<0>(player).getName() == nickname) {
             std::get<1>(player) = coords;
+            if(std::get<0>(coords) == this->gameBoard.size() -1 && std::get<1>(coords) == this->gameBoard.size() -1) {
+                this->winner = &std::get<0>(player);
+                isFinnish = true;
+            }
             return;
         }
     }

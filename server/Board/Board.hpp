@@ -19,14 +19,19 @@ public:
     int play(const std::string &nickname, const char &input);
     std::tuple<int, int> getPlayersCoordinates(const std::string &nickname);
     std::vector<std::vector<char>> getGameBoard();
+    Player* getWinner();
 
     void printBoard();
+    
 
 protected:
+    bool isFinnish;
+    Player* winner;
     std::vector<std::vector<char>> gameBoard;
     std::vector<std::tuple<Player, std::tuple<int, int>>> playersCoordinates;
     void setCoordinates(const std::string &nickname, const std::tuple<int, int> &coords);
     void initialize_board(int size);
+
 };
 
 #endif

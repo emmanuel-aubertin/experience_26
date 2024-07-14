@@ -9,7 +9,7 @@
 #include "Board/Board.hpp"
 
 using json = nlohmann::json;
-const int BOARD_SIZE = 10;
+const int BOARD_SIZE = 5;
 
 int main() {
     int port = 8000;
@@ -40,6 +40,13 @@ int main() {
     sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(clientAddr);
     while (true) {
+        Player *winner = board.getWinner();
+        if(winner != nullptr){
+            std::cout << std::endl << "WINNER: " << winner->getName() << std::endl;
+            break;
+        }
+
+
         int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (sockaddr *)&clientAddr, &clientAddrSize);
         if (bytesReceived > 0) {
             std::cout << "Received message from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << ": " << std::string(buffer, bytesReceived) << std::endl;
@@ -53,7 +60,6 @@ int main() {
                     if (json_message.contains("nickname")) {
                         Player tempPlayer(json_message["nickname"].get<std::string>(), inet_ntoa(clientAddr.sin_addr), json_message["port"].get<int>());
                         if (!board.addPlayer(tempPlayer)) {
-                            // Send a message back to the client indicating the nickname is already taken
                             std::string response = "{\"action\": \"error\", \"message\": \"Nickname already taken!\"}";
                             sendto(sockfd, response.c_str(), response.size(), 0, (sockaddr *)&clientAddr, clientAddrSize);
                             continue;
@@ -69,7 +75,7 @@ int main() {
 
                         int result = board.play(nickname, value);
                         std::string response;
-                        
+
                         sendto(sockfd, response.c_str(), response.size(), 0, (sockaddr *)&clientAddr, clientAddrSize);
                     }
                 }
