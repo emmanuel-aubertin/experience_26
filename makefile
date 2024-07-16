@@ -16,7 +16,7 @@ server:
 
 client:
 	@printf "\n\e[32m--------| \e[1;32mCOMPILING CLIENT\e[0m\e[32m |--------\e[0m\n\n"
-	clang++ -std=c++20 -stdlib=libc++ client/client.cpp -o udp_client
+	clang++ -std=c++20 -stdlib=libc++ client/client.cpp -o udp_client -L/usr/local/lib -lftxui-component -lftxui-dom -lftxui-screen
 	@printf "\e[32m\tDONE\e[0m\n"
 
 .PHONY: all clean server client
