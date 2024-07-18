@@ -51,6 +51,7 @@ int main()
 
     screen.Loop(renderer);
 
+    // Create a socket for sending the registration message
     int sockfd_send = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd_send < 0)
     {
@@ -79,7 +80,44 @@ int main()
         }
     });
 
+    // Create a socket for listening to incoming UDP messages
+    int sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd_recv < 0)
+    {
+        std::cerr << "Error creating receive socket" << std::endl;
+        return 1;
+    }
+
+    sockaddr_in recvAddr;
+    recvAddr.sin_family = AF_INET;
+    recvAddr.sin_addr.s_addr = INADDR_ANY;
+    recvAddr.sin_port = htons(port);
+
+    if (bind(sockfd_recv, (sockaddr *)&recvAddr, sizeof(recvAddr)) < 0)
+    {
+        std::cerr << "Error binding receive socket" << std::endl;
+        close(sockfd_recv);
+        return 1;
+    }
+
+    std::thread receive_thread([&] {
+        char buffer[1024];
+        while (true)
+        {
+            socklen_t addrLen = sizeof(recvAddr);
+            int recvLen = recvfrom(sockfd_recv, buffer, sizeof(buffer) - 1, 0, (sockaddr *)&recvAddr, &addrLen);
+            if (recvLen > 0)
+            {
+                buffer[recvLen] = '\0'; // Null-terminate the received data
+                std::cout << "Received message: " << buffer << std::endl;
+            }
+        }
+    });
+
     input_thread.join();
+    receive_thread.join();
+
     close(sockfd_send);
+    close(sockfd_recv);
     return 0;
 }
