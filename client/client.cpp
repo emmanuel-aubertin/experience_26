@@ -12,6 +12,8 @@
 #include <ftxui/component/captured_mouse.hpp>
 #include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
+
 int main()
 {
     using namespace ftxui;
@@ -103,8 +105,20 @@ int main()
             if (recvLen > 0)
             {
                 buffer[recvLen] = '\0'; // Null-terminate
-                std::cout << "Received message: " << buffer << std::endl;
+                //std::cout << "Received message: " << buffer << std::endl;
+                json json_message = json::parse(buffer);
+                if (json_message.contains("action")) {
+                    std::string action = json_message["action"];
 
+                    if (action == "error"){
+                        std::cout << "\033[1;31mServer error: " << json_message["message"] << "\033[0m" << std::endl;
+                        std::terminate();
+                    }
+
+                    if (action == "world") {
+                        std::cout << "Received world status: " << buffer << std::endl;
+                    }
+                }
             }
         }
     });
