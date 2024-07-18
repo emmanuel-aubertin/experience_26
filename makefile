@@ -7,7 +7,13 @@ clean:
 
 install_client:
 	git clone https://github.com/ArthurSonzogni/FTXUI.git client/FTXUI
-	cd client/FTXUI && mkdir build && cd build && cmake .. -DCMAKE_OSX_ARCHITECTURES=arm64 && make && sudo make install
+	cd client/FTXUI && mkdir build && cd build && \
+	if [ `uname -m` = "arm64" ]; then \
+		cmake .. -DCMAKE_OSX_ARCHITECTURES=arm64; \
+	else \
+		cmake ..; \
+	fi && \
+	make && sudo make install
 
 server:
 	@printf "\n\e[32m--------| \e[1;32mCOMPILING SERVER\e[0m\e[32m |--------\e[0m\n\n"
@@ -16,7 +22,7 @@ server:
 
 client:
 	@printf "\n\e[32m--------| \e[1;32mCOMPILING CLIENT\e[0m\e[32m |--------\e[0m\n\n"
-	clang++ -std=c++20 -stdlib=libc++ client/client.cpp -o udp_client -L/usr/local/lib -lftxui-component -lftxui-dom -lftxui-screen
+	clang++ -std=c++20 -stdlib=libc++ client/client.cpp -o udp_client -L/usr/local/lib -lftxui-component -lftxui-dom -lftxui-screen -I/opt/homebrew/opt/nlohmann-json/include
 	@printf "\e[32m\tDONE\e[0m\n"
 
 .PHONY: all clean server client install_client
