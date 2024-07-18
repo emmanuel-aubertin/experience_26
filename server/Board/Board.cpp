@@ -44,6 +44,14 @@ void Board::initialize_board(int size)
     this->gameBoard = board;
 }
 
+Player Board::getPlayer(const std::string &nickname){
+    for(auto &player : this->playersCoordinates){
+        if(std::get<0>(player).getName() == nickname){
+            return std::get<0>(player);
+        }
+    }
+}
+
 std::tuple<int, int> Board::getPlayersCoordinates(const std::string &nickname){
     for(auto &player : this->playersCoordinates){
         if(std::get<0>(player).getName() == nickname){
@@ -123,6 +131,10 @@ void Board::setCoordinates(const std::string &nickname, const std::tuple<int, in
     std::cerr << "Player with nickname " << nickname << " not found." << std::endl;
 }
 
+void Board::broadcastStatus(){
+    // TODO: next time :)
+}
+
 void Board::printBoard()
 {
     for (const auto &row : gameBoard)
@@ -134,3 +146,4 @@ void Board::printBoard()
         std::cout << std::endl;
     }
 }
+
