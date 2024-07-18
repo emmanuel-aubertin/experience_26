@@ -10,10 +10,7 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/component/captured_mouse.hpp>
-
-void clear_terminal() {
-    std::cout << "\033[2J\033[1;1H"; // ANSI escape code to clear the terminal
-}
+#include <nlohmann/json.hpp>
 
 int main()
 {
@@ -25,33 +22,31 @@ int main()
     std::string SERVER_ADDR;
     std::string playerName;
 
-    clear_terminal();
 
-    auto screen = ScreenInteractive::TerminalOutput();
+    auto screen = ScreenInteractive::FullscreenPrimaryScreen();
 
     auto server_addr_input = Input(&SERVER_ADDR, "Server IP");
     auto player_name_input = Input(&playerName, "Nickname");
 
     auto enter_button = Button("Enter", screen.ExitLoopClosure());
 
-    auto container = Container::Vertical({
+    auto container = Container::Vertical({ 
         server_addr_input,
         player_name_input,
         enter_button,
-    });
+    })| flex;
 
     auto renderer = Renderer(container, [&] {
         return vbox({
-            text("Registration") | bold | hcenter,
+            text("   Registration   ") | bold | hcenter,
             server_addr_input->Render() | hcenter,
             player_name_input->Render() | hcenter,
             enter_button->Render() | hcenter,
-        }) | border | center;
+        }) | border | center | flex;
     });
 
     screen.Loop(renderer);
 
-    // Create a socket for sending the registration message
     int sockfd_send = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd_send < 0)
     {
@@ -67,7 +62,6 @@ int main()
     std::string message = "{\"action\": \"register\", \"nickname\": \"" + playerName + "\", \"port\": " + std::to_string(port) + "}";
     sendto(sockfd_send, message.c_str(), message.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 
-    clear_terminal();
 
     std::thread input_thread([&] {
         while (true)
@@ -80,7 +74,7 @@ int main()
         }
     });
 
-    // Create a socket for listening to incoming UDP messages
+
     int sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd_recv < 0)
     {
@@ -108,8 +102,9 @@ int main()
             int recvLen = recvfrom(sockfd_recv, buffer, sizeof(buffer) - 1, 0, (sockaddr *)&recvAddr, &addrLen);
             if (recvLen > 0)
             {
-                buffer[recvLen] = '\0'; // Null-terminate the received data
+                buffer[recvLen] = '\0'; // Null-terminate
                 std::cout << "Received message: " << buffer << std::endl;
+
             }
         }
     });
