@@ -125,7 +125,6 @@ int main()
                 send_input(playerInput);
                 playerInput.clear();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Prevent busy waiting
         }
     });
 
