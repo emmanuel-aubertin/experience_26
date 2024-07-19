@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <thread>
+#include <chrono>
 #include <ftxui/screen/screen.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/component/component.hpp>
@@ -19,24 +20,25 @@ int main()
     using namespace ftxui;
 
     int SERVER_PORT = 8000;
-    int port = 9092;
+    int port = 9093;
 
     std::string SERVER_ADDR;
     std::string playerName;
-
+    std::string playerInput;
 
     auto screen = ScreenInteractive::FullscreenPrimaryScreen();
 
     auto server_addr_input = Input(&SERVER_ADDR, "Server IP");
     auto player_name_input = Input(&playerName, "Nickname");
+    auto player_input = Input(&playerInput, "Your Move");
 
     auto enter_button = Button("Enter", screen.ExitLoopClosure());
 
-    auto container = Container::Vertical({ 
+    auto container = Container::Vertical({
         server_addr_input,
         player_name_input,
         enter_button,
-    })| flex;
+    }) | flex;
 
     auto renderer = Renderer(container, [&] {
         return vbox({
@@ -63,19 +65,6 @@ int main()
 
     std::string message = "{\"action\": \"register\", \"nickname\": \"" + playerName + "\", \"port\": " + std::to_string(port) + "}";
     sendto(sockfd_send, message.c_str(), message.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
-
-
-    std::thread input_thread([&] {
-        while (true)
-        {
-            std::string input;
-            std::getline(std::cin, input);
-
-            std::string inputMessage = "{\"action\": \"input\", \"nickname\": \"" + playerName + "\", \"value\": \"" + input + "\"}";
-            sendto(sockfd_send, inputMessage.c_str(), inputMessage.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
-        }
-    });
-
 
     int sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd_recv < 0)
@@ -105,26 +94,53 @@ int main()
             if (recvLen > 0)
             {
                 buffer[recvLen] = '\0'; // Null-terminate
-                //std::cout << "Received message: " << buffer << std::endl;
                 json json_message = json::parse(buffer);
                 if (json_message.contains("action")) {
                     std::string action = json_message["action"];
 
-                    if (action == "error"){
+                    if (action == "error") {
                         std::cout << "\033[1;31mServer error: " << json_message["message"] << "\033[0m" << std::endl;
                         std::terminate();
                     }
 
-                    if (action == "world") {
-                        std::cout << "Received world status: " << buffer << std::endl;
+                    if (action == "status") {
+                        // Process status message from server
+                        //std::cout << "Received world status: " << buffer << std::endl;
                     }
                 }
             }
         }
     });
 
-    input_thread.join();
+    
+    auto send_input = [&](std::string value) {
+        std::string inputMessage = "{\"action\": \"input\", \"nickname\": \"" + playerName + "\", \"value\": \"" + value + "\"}";
+        sendto(sockfd_send, inputMessage.c_str(), inputMessage.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
+    };
+
+    // Thread to check for player input and send it
+    std::thread input_thread([&] {
+        while (true) {
+            if (!playerInput.empty()) {
+                send_input(playerInput);
+                playerInput.clear();
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Prevent busy waiting
+        }
+    });
+
+    auto input_container = Container::Vertical({ player_input }) | flex;
+    auto input_renderer = Renderer(input_container, [&] {
+        return vbox({
+            text("   Game Input   ") | bold | hcenter,
+            player_input->Render() | hcenter,
+        }) | border | center | flex;
+    });
+
+    screen.Loop(input_renderer);
+
     receive_thread.join();
+    input_thread.join();
 
     close(sockfd_send);
     close(sockfd_recv);

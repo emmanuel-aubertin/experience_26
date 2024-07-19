@@ -12,7 +12,7 @@
 using json = nlohmann::json;
 const int BOARD_SIZE = 5;
 bool GAME_OVER = false;
-int TICKS = 128;
+int TICKS = 2;
 
 void handleIncomingMessages(int sockfd, Board &board)
 {
