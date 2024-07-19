@@ -1,4 +1,6 @@
 #include "Board.hpp"
+#include <nlohmann/json.hpp>
+
 
 Board::Board(int size)
 {
@@ -131,8 +133,32 @@ void Board::setCoordinates(const std::string &nickname, const std::tuple<int, in
     std::cerr << "Player with nickname " << nickname << " not found." << std::endl;
 }
 
-void Board::broadcastStatus(){
-    // TODO: next time :)
+void Board::broadcastStatus() {
+    nlohmann::json status;
+    status["action"] = "status";
+    
+    
+    for (const auto &row : gameBoard) {
+        nlohmann::json jsonRow;
+        for (char cell : row) {
+            jsonRow.push_back(std::string(1, cell));
+        }
+        status["board"].push_back(jsonRow);
+    }
+    
+    
+    for (const auto &entry : playersCoordinates) {
+        nlohmann::json playerJson;
+        playerJson["nickname"] = std::get<0>(entry).getName();
+        playerJson["coordinates"] = { std::get<0>(std::get<1>(entry)), std::get<1>(std::get<1>(entry)) };
+        status["players"].push_back(playerJson);
+    }
+    
+    
+    std::string message = status.dump();
+    for (auto &player : playersCoordinates) {
+        std::get<0>(player).sendMessage(message);
+    }
 }
 
 void Board::printBoard()
