@@ -14,6 +14,9 @@
 #include <ftxui/component/captured_mouse.hpp>
 #include <nlohmann/json.hpp>
 
+#include "Board/Board.hpp"
+
+
 using json = nlohmann::json;
 
 int main()

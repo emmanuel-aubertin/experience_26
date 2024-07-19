@@ -157,6 +157,7 @@ void Board::broadcastStatus() {
     
     
     std::string message = status.dump();
+    std::cout << message << std::endl;
     for (auto &player : playersCoordinates) {
         std::get<0>(player).sendMessage(message);
     }
