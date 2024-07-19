@@ -6,6 +6,7 @@
 #include <string.h>
 #include <thread>
 #include <chrono>
+#include <vector>
 #include <ftxui/screen/screen.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/component/component.hpp>
@@ -25,6 +26,7 @@ int main()
     std::string SERVER_ADDR;
     std::string playerName;
     std::string playerInput;
+    std::vector<std::string> inputHistory;
 
     auto screen = ScreenInteractive::FullscreenPrimaryScreen();
 
@@ -112,28 +114,37 @@ int main()
         }
     });
 
-    
     auto send_input = [&](std::string value) {
         std::string inputMessage = "{\"action\": \"input\", \"nickname\": \"" + playerName + "\", \"value\": \"" + value + "\"}";
         sendto(sockfd_send, inputMessage.c_str(), inputMessage.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
+        inputHistory.push_back(value); // Store the input in the history
     };
 
-    // Thread to check for player input and send it
     std::thread input_thread([&] {
         while (true) {
             if (!playerInput.empty()) {
                 send_input(playerInput);
                 playerInput.clear();
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
     });
 
     auto input_container = Container::Vertical({ player_input }) | flex;
     auto input_renderer = Renderer(input_container, [&] {
-        return vbox({
-            text("   Game Input   ") | bold | hcenter,
-            player_input->Render() | hcenter,
-        }) | border | center | flex;
+        std::vector<Element> history_elements;
+        for (const auto& input : inputHistory) {
+            history_elements.push_back(text(input) | hcenter);
+        }
+
+        return hbox({
+            filler(),
+            vbox({
+                text("Game Input") | bold | hcenter,
+                player_input->Render() | hcenter,
+                vbox(history_elements) | hcenter,
+            }) | border
+        }) | flex;
     });
 
     screen.Loop(input_renderer);
