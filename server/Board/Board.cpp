@@ -52,6 +52,7 @@ Player Board::getPlayer(const std::string &nickname){
             return std::get<0>(player);
         }
     }
+    // Warning make something here later
 }
 
 std::tuple<int, int> Board::getPlayersCoordinates(const std::string &nickname){
@@ -147,7 +148,7 @@ void Board::broadcastStatus() {
     }
     
     
-    for (const auto &entry : playersCoordinates) {
+    for (auto &entry : playersCoordinates) {
         nlohmann::json playerJson;
         playerJson["nickname"] = std::get<0>(entry).getName();
         playerJson["coordinates"] = { std::get<0>(std::get<1>(entry)), std::get<1>(std::get<1>(entry)) };
