@@ -16,15 +16,14 @@
 
 #include "Board/Board.hpp"
 
-
 using json = nlohmann::json;
+using namespace ftxui;
 
 int main()
 {
-    using namespace ftxui;
-
     int SERVER_PORT = 8000;
     int port = 9093;
+    Board board;
 
     std::string SERVER_ADDR;
     std::string playerName;
@@ -40,19 +39,20 @@ int main()
     auto enter_button = Button("Enter", screen.ExitLoopClosure());
 
     auto container = Container::Vertical({
-        server_addr_input,
-        player_name_input,
-        enter_button,
-    }) | flex;
+                         server_addr_input,
+                         player_name_input,
+                         enter_button,
+                     }) |
+                     flex;
 
-    auto renderer = Renderer(container, [&] {
-        return vbox({
-            text("   Registration   ") | bold | hcenter,
-            server_addr_input->Render() | hcenter,
-            player_name_input->Render() | hcenter,
-            enter_button->Render() | hcenter,
-        }) | border | center | flex;
-    });
+    auto renderer = Renderer(container, [&]
+                             { return vbox({
+                                          text("   Registration   ") | bold | hcenter,
+                                          server_addr_input->Render() | hcenter,
+                                          player_name_input->Render() | hcenter,
+                                          enter_button->Render() | hcenter,
+                                      }) |
+                                      border | center | flex; });
 
     screen.Loop(renderer);
 
@@ -90,7 +90,8 @@ int main()
         return 1;
     }
 
-    std::thread receive_thread([&] {
+    std::thread receive_thread([&]
+                               {
         char buffer[1024];
         while (true)
         {
@@ -109,46 +110,45 @@ int main()
                     }
 
                     if (action == "status") {
-                        // Process status message from server
-                        //std::cout << "Received world status: " << buffer << std::endl;
+                        board.updateBoard(json_message);
                     }
                 }
             }
-        }
-    });
+        } });
 
-    auto send_input = [&](std::string value) {
+    auto send_input = [&](std::string value)
+    {
         std::string inputMessage = "{\"action\": \"input\", \"nickname\": \"" + playerName + "\", \"value\": \"" + value + "\"}";
         sendto(sockfd_send, inputMessage.c_str(), inputMessage.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
-        inputHistory.push_back(value); // Store the input in the history
+        inputHistory.push_back(value);
     };
 
-    std::thread input_thread([&] {
+    std::thread input_thread([&]
+                             {
         while (true) {
             if (!playerInput.empty()) {
                 send_input(playerInput);
                 playerInput.clear();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
-    });
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        } });
 
-    auto input_container = Container::Vertical({ player_input }) | flex;
-    auto input_renderer = Renderer(input_container, [&] {
+    auto input_container = Container::Vertical({player_input}) | flex;
+    auto input_renderer = Renderer(input_container, [&]
+                                   {
         std::vector<Element> history_elements;
         for (const auto& input : inputHistory) {
             history_elements.push_back(text(input) | hcenter);
         }
 
         return hbox({
-            filler(),
+            board.renderBoard() | flex,
             vbox({
                 text("Game Input") | bold | hcenter,
                 player_input->Render() | hcenter,
                 vbox(history_elements) | hcenter,
-            }) | border
-        }) | flex;
-    });
+            }) | border | flex,
+        }) | flex; });
 
     screen.Loop(input_renderer);
 
