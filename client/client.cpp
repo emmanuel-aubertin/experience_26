@@ -131,6 +131,7 @@ int main()
                 playerInput.clear();
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            screen.PostEvent(Event::Custom); // Custom event to force redraw
         } });
 
     auto input_container = Container::Vertical({player_input}) | flex;
