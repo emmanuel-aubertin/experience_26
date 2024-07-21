@@ -16,6 +16,7 @@ int TICKS = 64;
 
 void handleIncomingMessages(int sockfd, Board &board)
 {
+    std::cout << std::endl << "Welcome in message handler" << std::endl;
     char buffer[1024];
     sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(clientAddr);
@@ -28,7 +29,9 @@ void handleIncomingMessages(int sockfd, Board &board)
             std::cout << std::endl
                       << "WINNER: " << winner->getName() << std::endl;
             GAME_OVER = true;
+            continue;
         }
+        std::cout << "No winner found :) " << std::endl;
 
         int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0, (sockaddr *)&clientAddr, &clientAddrSize);
         if (bytesReceived > 0)
@@ -97,10 +100,9 @@ void broadcastStatus(Board &board)
     while (!GAME_OVER)
     {
         board.broadcastStatus();
-        std::this_thread::sleep_for(std::chrono::seconds(60/TICKS));
+        std::this_thread::sleep_for(std::chrono::seconds(60 / TICKS));
     }
 }
-
 
 int main()
 {
@@ -135,8 +137,6 @@ int main()
 
     messageHandler.join();
     broadcaster.join();
-
-    
 
     close(sockfd);
     return 0;

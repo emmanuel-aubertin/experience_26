@@ -4,11 +4,15 @@
 
 Board::Board(int size)
 {
+    this->isFinnish = false;
+    this->winner = nullptr;
     initialize_board(size);
 }
 
 Board::Board()
 {
+    this->isFinnish = false;
+    this->winner = nullptr;
     initialize_board(10);
 }
 
@@ -115,6 +119,7 @@ Player* Board::getWinner() {
     if(this->isFinnish){
         return this->winner;
     }
+    std::cout << "No winner, returning nullptr" << std::endl;
     return nullptr;
 }
 
@@ -135,6 +140,12 @@ void Board::setCoordinates(const std::string &nickname, const std::tuple<int, in
 }
 
 void Board::broadcastStatus() {
+
+    if (gameBoard.empty() || playersCoordinates.empty()) {
+        std::cout << "gameBoard or playersCoordinates is empty :) " << std::endl;
+        return;
+    }
+
     nlohmann::json status;
     status["action"] = "status";
     
