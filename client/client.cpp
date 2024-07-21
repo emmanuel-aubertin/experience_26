@@ -132,7 +132,7 @@ int main()
                 send_input(playerInput);
                 playerInput.clear();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
             screen.PostEvent(Event::Custom); // Custom event to force redraw
         } });
 
