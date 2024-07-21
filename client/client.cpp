@@ -23,7 +23,7 @@ int main()
 {
     int SERVER_PORT = 8000;
     int port = 9093;
-    Board board;
+    
 
     std::string SERVER_ADDR;
     std::string playerName;
@@ -90,6 +90,8 @@ int main()
         return 1;
     }
 
+    Board* board = new Board(playerName);
+
     std::thread receive_thread([&]
                                {
         char buffer[1024];
@@ -110,7 +112,7 @@ int main()
                     }
 
                     if (action == "status") {
-                        board.updateBoard(json_message);
+                        board->updateBoard(json_message);
                     }
                 }
             }
@@ -130,7 +132,7 @@ int main()
                 send_input(playerInput);
                 playerInput.clear();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
             screen.PostEvent(Event::Custom); // Custom event to force redraw
         } });
 
@@ -143,7 +145,7 @@ int main()
         }
 
         return hbox({
-            board.renderBoard() | flex,
+            board->renderBoard() | flex,
             vbox({
                 text("Game Input") | bold | hcenter,
                 player_input->Render() | hcenter,

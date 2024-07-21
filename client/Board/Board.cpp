@@ -2,9 +2,7 @@
 
 using namespace ftxui;
 
-Board::Board(){
-
-}
+Board::Board(const std::string &nickname) : nickname(nickname) {}
 
 Board::Board(const json &data)
 {
@@ -41,21 +39,42 @@ void Board::updateBoard(const json &data)
     }
 }
 
-
-
-
-#include "Board.hpp"
-
-Element Board::renderBoard() {
-    if (gameBoard.empty()) {
+Element Board::renderBoard()
+{
+    if (gameBoard.empty())
+    {
         return text("No data available") | hcenter | vcenter;
     }
 
     std::vector<Element> rows;
-    for (const auto &row : gameBoard) {
+    for (size_t y = 0; y < gameBoard.size(); ++y)
+    {
         std::vector<Element> cells;
-        for (const auto &cell : row) {
-            cells.push_back(text(std::string(1, cell)) | border);
+        for (size_t x = 0; x < gameBoard[y].size(); ++x)
+        {
+            char cell = gameBoard[y][x];
+            auto cellElement = text(std::string(1, cell)) | border;
+
+            // Check if there is a player at this position
+            for (const auto &player : playersCoordinates)
+            {
+                std::string playerName = std::get<0>(player);
+                int playerX = std::get<1>(std::get<1>(player));
+                int playerY = std::get<0>(std::get<1>(player));
+
+                if (playerX == x && playerY == y)
+                {
+                    if (playerName == this->nickname)
+                    {
+                        cellElement = cellElement | color(Color::Green);
+                    }
+                    else
+                    {
+                        cellElement = cellElement | color(Color::Red);
+                    }
+                }
+            }
+            cells.push_back(cellElement);
         }
         rows.push_back(hbox(std::move(cells)));
     }

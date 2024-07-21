@@ -18,7 +18,8 @@ class Board
 {
 public:
     explicit Board(const json &data);
-    explicit Board();
+
+    explicit Board(const std::string &nickname);
     virtual ~Board() = default;
 
     void updateBoard(const json &data);
@@ -27,6 +28,7 @@ public:
 protected:
     std::vector<std::vector<char>> gameBoard;
     std::vector<std::tuple<std::string, std::tuple<int, int>>> playersCoordinates;
+    std::string nickname;
 };
 
 #endif
