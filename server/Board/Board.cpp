@@ -77,6 +77,7 @@ int Board::addPlayer(Player player) {
         }
     }
     playersCoordinates.push_back(std::make_tuple(player, std::make_tuple(0, 0)));
+    this->broadcastStatus();
     return 1;
 }
 
