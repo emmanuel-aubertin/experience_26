@@ -12,7 +12,7 @@
 using json = nlohmann::json;
 const int BOARD_SIZE = 5;
 bool GAME_OVER = false;
-int TICKS = 50;
+int TICKS = 8;
 
 void handleIncomingMessages(int sockfd, Board &board)
 {
@@ -95,15 +95,6 @@ void handleIncomingMessages(int sockfd, Board &board)
     }
 }
 
-void broadcastStatus(Board &board)
-{
-    while (!GAME_OVER)
-    {
-        board.broadcastStatus();
-        std::this_thread::sleep_for(std::chrono::seconds(60 / TICKS));
-    }
-}
-
 int main()
 {
     int port = 8000;
@@ -133,10 +124,8 @@ int main()
     std::cout << "UDP server listening on port " << port << std::endl;
 
     std::thread messageHandler(handleIncomingMessages, sockfd, std::ref(board));
-    std::thread broadcaster(broadcastStatus, std::ref(board));
 
     messageHandler.join();
-    broadcaster.join();
 
     close(sockfd);
     return 0;

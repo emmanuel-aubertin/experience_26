@@ -77,6 +77,7 @@ int Board::addPlayer(Player player) {
         }
     }
     playersCoordinates.push_back(std::make_tuple(player, std::make_tuple(0, 0)));
+    this->broadcastStatus();
     return 1;
 }
 
@@ -112,6 +113,7 @@ int Board::play(const std::string &nickname, const char &input)
     }
 
     std::cerr << "Not able to move that way." << std::endl;
+    
     return 0;
 }
 
@@ -119,7 +121,6 @@ Player* Board::getWinner() {
     if(this->isFinnish){
         return this->winner;
     }
-    std::cout << "No winner, returning nullptr" << std::endl;
     return nullptr;
 }
 
@@ -133,16 +134,15 @@ void Board::setCoordinates(const std::string &nickname, const std::tuple<int, in
                 this->winner = &std::get<0>(player);
                 isFinnish = true;
             }
-            return;
+            break;
         }
     }
-    std::cerr << "Player with nickname " << nickname << " not found." << std::endl;
+    this->broadcastStatus();
 }
 
 void Board::broadcastStatus() {
 
     if (gameBoard.empty() || playersCoordinates.empty()) {
-        std::cout << "gameBoard or playersCoordinates is empty :) " << std::endl;
         return;
     }
 
