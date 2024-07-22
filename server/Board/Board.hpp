@@ -17,11 +17,11 @@ public:
 
     int addPlayer(Player player);
     int play(const std::string &nickname, const char &input);
-    Player getPlayer(const std::string &nickname);
+    std::optional<Player> getPlayer(const std::string &nickname);
     std::tuple<int, int> getPlayersCoordinates(const std::string &nickname);
     std::vector<std::vector<char>> getGameBoard();
     Player* getWinner();
-    
+
     void broadcastWinner();
     void broadcastStatus();
 

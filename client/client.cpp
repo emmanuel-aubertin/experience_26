@@ -22,7 +22,7 @@ using namespace ftxui;
 int main()
 {
     int SERVER_PORT = 8000;
-    int port = 9090;
+    int port = 9091;
 
     std::string SERVER_ADDR;
     std::string playerName;
@@ -154,7 +154,7 @@ int main()
         }
 
         auto winner_message = game_over ? text("Winner: " + winner_name) | bold | hcenter | color(Color::Green) : text("");
-
+        
         return hbox({
             board->renderBoard() | flex,
             vbox({

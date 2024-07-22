@@ -50,13 +50,13 @@ void Board::initialize_board(int size)
     this->gameBoard = board;
 }
 
-Player Board::getPlayer(const std::string &nickname){
+std::optional<Player> Board::getPlayer(const std::string &nickname){
     for(auto &player : this->playersCoordinates){
         if(std::get<0>(player).getName() == nickname){
             return std::get<0>(player);
         }
     }
-    throw std::runtime_error("Player not found: " + nickname);
+    return std::nullopt;
 }
 
 

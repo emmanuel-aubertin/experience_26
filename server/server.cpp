@@ -16,7 +16,8 @@ int TICKS = 8;
 
 void handleIncomingMessages(int sockfd, Board &board)
 {
-    std::cout << std::endl << "Welcome in message handler" << std::endl;
+    std::cout << std::endl
+              << "Welcome in message handler" << std::endl;
     char buffer[1024];
     sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(clientAddr);
@@ -75,20 +76,23 @@ void handleIncomingMessages(int sockfd, Board &board)
                         char value = json_message["value"].get<std::string>()[0];
 
                         int result = board.play(nickname, value);
-                        Player player = board.getPlayer(nickname);
+                        auto player = board.getPlayer(nickname);
+                        if (!player)
+                        {
+                            continue;
+                        }
                         std::string response;
 
-                        // See later if response is useful for the player
                         if (result == 0)
                         {
-                            player.sendMessage("{\"action\": \"play\", \"status\": \"ok\"}");
+                            player->sendMessage("{\"action\": \"play\", \"status\": \"ok\"}");
                         }
                         else
                         {
-                            player.sendMessage("{\"action\": \"play\", \"status\": \"error\", \"message\": \"Invalid move\"}");
+                            player->sendMessage("{\"action\": \"play\", \"status\": \"error\", \"message\": \"Invalid move\"}");
                         }
 
-                        sendto(sockfd, response.c_str(), response.size(), 0, (sockaddr *)&clientAddr, clientAddrSize);
+                        // sendto(sockfd, response.c_str(), response.size(), 0, (sockaddr *)&clientAddr, clientAddrSize);
                     }
                 }
             }
