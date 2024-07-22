@@ -1,23 +1,25 @@
-# Experience_26
+# Experience_26: Simple Typing Game
 
-Welcome to **Experience_26**, a project focused on experimenting with UDP through a small typing game. This project is currently in its experimental phase, but you are welcome to try it out using the following instructions.
+Welcome to **Experience_26**, a project designed to explore User Datagram Protocol (UDP) through an engaging typing game. While still in its experimental phase, you're invited to try it out by following the instructions below.
 
 ## Getting Started
 
 ### Server Setup
 
-To compile and run the server, execute the following commands:
+To set up and run the server, use the following commands:
 
 ```bash
-make server  # Compile the server code
-./udp_server # Run the server
+make install-json
+make server && ./udp_server
 ```
 
 ### Client Setup
 
-To compile and run the client, execute the following commands:
+To set up and run the client, use the following commands:
 
 ```bash
-make client  # Compile the client code
-./udp_client # Run the client
+make install_client
+make client && ./udp_client
 ```
+
+Enjoy your typing skills!
