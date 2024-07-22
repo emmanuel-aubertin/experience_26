@@ -16,7 +16,6 @@ Player::Player(const std::string &name, const std::string &ipAdresse, const int 
 
 std::string Player::getName() { return name; }
 
-
 void Player::sendMessage(const std::string &message)
 {
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -31,7 +30,7 @@ void Player::sendMessage(const std::string &message)
     serverAddr.sin_addr.s_addr = inet_addr(ipAdresse.c_str());
     serverAddr.sin_port = htons(port);
 
-    const char* to_send = message.c_str(); 
+    const char *to_send = message.c_str();
 
     sendto(sockfd, to_send, strlen(to_send), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 }

@@ -22,7 +22,8 @@ using namespace ftxui;
 int main()
 {
     int SERVER_PORT = 8000;
-    int port = 9091;
+    // You must specify port if you want to run multiple clients
+    int port = 9090;
 
     std::string SERVER_ADDR;
     std::string playerName;
@@ -89,7 +90,7 @@ int main()
         return 1;
     }
 
-    Board* board = new Board(playerName);
+    Board *board = new Board(playerName);
     bool game_over = false;
     std::string winner_name;
 

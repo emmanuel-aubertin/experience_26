@@ -10,7 +10,6 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/component/component.hpp>
 
-
 using json = nlohmann::json;
 using namespace ftxui;
 
