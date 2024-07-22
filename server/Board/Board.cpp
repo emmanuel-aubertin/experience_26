@@ -56,8 +56,9 @@ Player Board::getPlayer(const std::string &nickname){
             return std::get<0>(player);
         }
     }
-    // Warning make something here later
+    throw std::runtime_error("Player not found: " + nickname);
 }
+
 
 std::tuple<int, int> Board::getPlayersCoordinates(const std::string &nickname){
     for(auto &player : this->playersCoordinates){
