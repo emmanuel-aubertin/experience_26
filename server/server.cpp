@@ -29,6 +29,7 @@ void handleIncomingMessages(int sockfd, Board &board)
             std::cout << std::endl
                       << "WINNER: " << winner->getName() << std::endl;
             GAME_OVER = true;
+            board.broadcastWinner();
             continue;
         }
         std::cout << "No winner found :) " << std::endl;

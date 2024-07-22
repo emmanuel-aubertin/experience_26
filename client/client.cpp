@@ -90,6 +90,8 @@ int main()
     }
 
     Board* board = new Board(playerName);
+    bool game_over = false;
+    std::string winner_name;
 
     std::thread receive_thread([&]
                                {
@@ -114,6 +116,13 @@ int main()
                         board->updateBoard(json_message);
                         screen.PostEvent(Event::Custom);
                     }
+
+                    if (action == "winner") {
+                        winner_name = json_message["nickname"];
+                        game_over = true;
+                        screen.PostEvent(Event::Custom);
+                        break;
+                    }
                 }
             }
         } });
@@ -128,7 +137,7 @@ int main()
     std::thread input_thread([&]
                              {
         while (true) {
-            if (!playerInput.empty()) {
+            if (!playerInput.empty() && !game_over) {
                 send_input(playerInput);
                 playerInput.clear();
             }
@@ -144,12 +153,15 @@ int main()
             history_elements.push_back(text(*it) | hcenter);
         }
 
+        auto winner_message = game_over ? text("Winner: " + winner_name) | bold | hcenter | color(Color::Green) : text("");
+
         return hbox({
             board->renderBoard() | flex,
             vbox({
                 text("Game Input") | bold | hcenter,
                 player_input->Render() | hcenter,
                 vbox(history_elements) | hcenter, 
+                winner_message,
             }) | border | flex,
         }) | flex; });
 

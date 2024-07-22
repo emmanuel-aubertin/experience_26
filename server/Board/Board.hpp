@@ -21,6 +21,8 @@ public:
     std::tuple<int, int> getPlayersCoordinates(const std::string &nickname);
     std::vector<std::vector<char>> getGameBoard();
     Player* getWinner();
+    
+    void broadcastWinner();
     void broadcastStatus();
 
     void printBoard();

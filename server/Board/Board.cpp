@@ -124,6 +124,21 @@ Player* Board::getWinner() {
     return nullptr;
 }
 
+void Board::broadcastWinner()
+{
+    if (this->winner != nullptr)
+    {
+        nlohmann::json winnerMessage;
+        winnerMessage["action"] = "winner";
+        winnerMessage["nickname"] = this->winner->getName();
+        std::string message = winnerMessage.dump();
+
+        for (auto &player : playersCoordinates)
+        {
+            std::get<0>(player).sendMessage(message);
+        }
+    }
+}
 
 void Board::setCoordinates(const std::string &nickname, const std::tuple<int, int> &coords) 
 {
