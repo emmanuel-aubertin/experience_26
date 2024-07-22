@@ -67,6 +67,7 @@ Element Board::renderBoard()
                     if (playerName == this->nickname)
                     {
                         cellElement = cellElement | color(Color::Green);
+                        break;
                     }
                     else
                     {

@@ -22,8 +22,7 @@ using namespace ftxui;
 int main()
 {
     int SERVER_PORT = 8000;
-    int port = 9093;
-    
+    int port = 9090;
 
     std::string SERVER_ADDR;
     std::string playerName;
@@ -113,6 +112,7 @@ int main()
 
                     if (action == "status") {
                         board->updateBoard(json_message);
+                        screen.PostEvent(Event::Custom);
                     }
                 }
             }
@@ -132,7 +132,7 @@ int main()
                 send_input(playerInput);
                 playerInput.clear();
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             screen.PostEvent(Event::Custom); // Custom event to force redraw
         } });
 
@@ -140,8 +140,8 @@ int main()
     auto input_renderer = Renderer(input_container, [&]
                                    {
         std::vector<Element> history_elements;
-        for (const auto& input : inputHistory) {
-            history_elements.push_back(text(input) | hcenter);
+        for (auto it = inputHistory.rbegin(); it != inputHistory.rend(); ++it) {
+            history_elements.push_back(text(*it) | hcenter);
         }
 
         return hbox({
@@ -149,7 +149,7 @@ int main()
             vbox({
                 text("Game Input") | bold | hcenter,
                 player_input->Render() | hcenter,
-                vbox(history_elements) | hcenter,
+                vbox(history_elements) | hcenter, 
             }) | border | flex,
         }) | flex; });
 
