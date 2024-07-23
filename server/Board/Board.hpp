@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <optional>
 
 #include "../Player/Player.hpp"
 

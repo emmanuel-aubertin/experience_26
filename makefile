@@ -1,6 +1,6 @@
 # Variables
 CXX = g++
-CXXFLAGS = -std=c++20
+CXXFLAGS = -std=c++2b
 LIBS = -lftxui-component -lftxui-dom -lftxui-screen
 INCLUDES_LINUX = -I/usr/include/nlohmann
 INCLUDES_DARWIN = -I/opt/homebrew/opt/nlohmann-json/include
@@ -22,7 +22,7 @@ clean:
 install-json:
 	@printf "\n\e[32m--------| \e[1;32mINSTALLING JSON LIBRARY\e[0m\e[32m |--------\e[0m\n\n"
 	@if [ $(UNAME) = "Linux" ]; then \
-		sudo apt-get update && sudo apt-get install -y nlohmann-json3-dev; \
+		sudo apt-get update && sudo apt-get install -y g++ nlohmann-json3-dev; \
 	elif [ $(UNAME) = "Darwin" ]; then \
 		brew install nlohmann-json; \
 	else \
@@ -42,7 +42,7 @@ install_client: install-json
 server:
 	@printf "\n\e[32m--------| \e[1;32mCOMPILING SERVER\e[0m\e[32m |--------\e[0m\n\n"
 	@if [ $(UNAME) = "Linux" ]; then \
-		$(CXX) $(CXXFLAGS) $(SERVER_SRCS) $(INCLUDES_LINUX) -o udp_server; \
+		$(CXX) -std=c++23 $(SERVER_SRCS) $(INCLUDES_LINUX) -o udp_server; \
 	elif [ $(UNAME) = "Darwin" ]; then \
 		clang++ $(CXXFLAGS) -stdlib=libc++ $(SERVER_SRCS) $(INCLUDES_DARWIN) -o udp_server; \
 	else \
@@ -54,7 +54,7 @@ server:
 client:
 	@printf "\n\e[32m--------| \e[1;32mCOMPILING CLIENT\e[0m\e[32m |--------\e[0m\n\n"
 	@if [ $(UNAME) = "Linux" ]; then \
-		$(CXX) $(CXXFLAGS) $(CLIENT_SRCS) -o udp_client -L/usr/local/lib $(LIBS) $(INCLUDES_LINUX); \
+		$(CXX) -std=c++23 $(CLIENT_SRCS) -o udp_client -L/usr/local/lib $(LIBS) $(INCLUDES_LINUX); \
 	elif [ $(UNAME) = "Darwin" ]; then \
 		clang++ $(CXXFLAGS) -stdlib=libc++ $(CLIENT_SRCS) -o udp_client -L/usr/local/lib $(LIBS) $(INCLUDES_DARWIN); \
 	else \

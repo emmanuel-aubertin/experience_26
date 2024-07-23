@@ -1,6 +1,8 @@
 #include "Board.hpp"
 #include <nlohmann/json.hpp>
 
+
+
 Board::Board(int size)
 {
     this->isFinnish = false;
