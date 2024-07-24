@@ -147,12 +147,7 @@ void Board::broadcastWinner()
         nlohmann::json winnerMessage;
         winnerMessage["action"] = "winner";
         winnerMessage["nickname"] = this->winner->getName();
-        std::string message = winnerMessage.dump();
-
-        for (auto &player : playersCoordinates)
-        {
-            std::get<0>(player).sendMessage(message);
-        }
+        this->broadcastMessage(winnerMessage.dump());
     }
 }
 
@@ -202,13 +197,17 @@ void Board::broadcastStatus()
         playerJson["coordinates"] = {std::get<0>(std::get<1>(entry)), std::get<1>(std::get<1>(entry))};
         status["players"].push_back(playerJson);
     }
+    this->broadcastMessage(status.dump());
+}
 
-    std::string message = status.dump();
+void Board::broadcastMessage(const std::string &message)
+{
     for (auto &player : playersCoordinates)
     {
         std::get<0>(player).sendMessage(message);
     }
 }
+
 
 void Board::printBoard()
 {

@@ -25,6 +25,7 @@ public:
 
     void broadcastWinner();
     void broadcastStatus();
+    void broadcastMessage(const std::string &message);
 
     void printBoard();
 
